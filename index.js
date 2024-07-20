@@ -5,7 +5,6 @@ const app = express()
 app.use(express.json())
 app.use(express.static("dist"))
 
-
 let persons = [
     {
         id: "1",
