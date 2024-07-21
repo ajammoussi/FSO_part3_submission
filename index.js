@@ -42,17 +42,19 @@ app.get("/api/persons/:id", (request, response, next) => {
     .catch(error => next(error))
 })
 
-app.get("/info", (request, response) => {
-    Person.find({}).then((persons) => {
-        const date = new Date()
-        response.send(
-            `<p>Phonebook has info for ${persons.length} people</p>
-            <p>${date}</p>`
-        )
-    })
+app.get("/info", (request, response, next) => {
+    Person.find({})
+        .then((persons) => {
+            const date = new Date()
+            response.send(
+                `<p>Phonebook has info for ${persons.length} people</p>
+                <p>${date}</p>`
+            )
+        })
+        .catch(error => next(error))
 })
 
-app.delete("/api/persons/:id", (request, response) => {
+app.delete("/api/persons/:id", (request, response, next) => {
     Person.findByIdAndDelete(request.params.id)
         .then(result => {
             response.status(204).end()
@@ -117,6 +119,8 @@ const errorHandler = (error, request, response, next) => {
 
     next(error)
 }
+
+app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
