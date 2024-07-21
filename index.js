@@ -31,10 +31,15 @@ app.get("/api/persons", (request, response) => {
     })
 })
 
-app.get("/api/persons/:id", (request, response) => {
+app.get("/api/persons/:id", (request, response, next) => {
     Person.findById(request.params.id).then((person) => {
-        response.json(person)
+        if (person) {
+            response.json(person)
+        } else {
+            response.status(404).end()
+        }
     })
+    .catch(error => next(error))
 })
 
 app.get("/info", (request, response) => {
@@ -69,6 +74,10 @@ app.post("/api/persons", (request, response) => {
         return response.status(400).json({
             error: "number of person missing"
         })
+    } else if (!name && !number) {
+        return response.status(400).json({
+            error: "name and number of person missing"
+        })
     }
 
     const person = new Person({
@@ -81,6 +90,16 @@ app.post("/api/persons", (request, response) => {
     })
 
 })
+
+const errorHandler = (error, request, response, next) => {
+    console.error(error.message)
+
+    if (error.name === "CastError") {
+        return response.status(400).send({ error: "malformatted id" })
+    }
+
+    next(error)
+}
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
